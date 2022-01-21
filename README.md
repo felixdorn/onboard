@@ -1,4 +1,4 @@
-# Le live va démarrer!
+# Onboard
 
 [![Tests](https://github.com/felixdorn/onboard/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/felixdorn/onboard/actions/workflows/tests.yml)
 [![Formats](https://github.com/felixdorn/onboard/actions/workflows/formats.yml/badge.svg?branch=main)](https://github.com/felixdorn/onboard/actions/workflows/formats.yml)

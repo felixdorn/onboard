@@ -8,24 +8,29 @@ use Illuminate\Contracts\Support\Jsonable;
 
 class Onboard implements Arrayable, Jsonable
 {
-    /** @var array<int, Step> */
-    protected array $steps = [];
-
     public function __construct(
-        public Authenticatable $user
+        public Authenticatable $user,
+        /** @var array<int, Step> */
+        public array $steps = [],
     ) {
     }
 
-    public function add(string $name): Step
+    public function progress(): float
     {
-        $this->steps[] = $step = new Step($this->user, $name);
+        $step = $this->nextUnfinishedStep();
 
-        return $step;
+        if ($step === null) {
+            return 100;
+        }
+
+        return (array_search($step, $this->steps, true)) / count($this->steps) * 100;
     }
 
-    public function steps(): array
+    public function nextUnfinishedStep(): ?Step
     {
-        return $this->steps;
+        // TODO: When L9 is released, PHPStan will understand that.
+        /* @phpstan-ignore-next-line */
+        return collect($this->steps)->first(fn (Step $step) => $step->user($this->user)->isIncomplete());
     }
 
     public function inProgress(): bool
@@ -38,14 +43,6 @@ class Onboard implements Arrayable, Jsonable
         return $this->nextUnfinishedStep() === null;
     }
 
-    public function nextUnfinishedStep(): ?Step
-    {
-        // TODO: When L9 is released, PHPStan will understand that.
-        /* @phpstan-ignore-next-line */
-        return collect($this->steps)
-            ->first(fn (Step $step) => $step->isIncomplete());
-    }
-
     public function toJson($options = 0): false|string
     {
         return json_encode($this->toArray(), $options);
@@ -53,6 +50,6 @@ class Onboard implements Arrayable, Jsonable
 
     public function toArray(): array
     {
-        return array_map(fn (Step $step) => $step->toArray(), $this->steps);
+        return array_map(fn (Step $step) => $step->user($this->user)->toArray(), $this->steps);
     }
 }

@@ -2,14 +2,13 @@
 
 namespace Felix\Onboard\Providers;
 
-use Felix\Onboard\Onboard;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Felix\Onboard\StepsCache;
 use Illuminate\Support\ServiceProvider;
 
 class OnboardServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function register(): void
     {
-        $this->app->bind(Onboard::class, fn (Authenticatable $user) => new Onboard($user));
+        $this->app->singleton(StepsCache::class);
     }
 }

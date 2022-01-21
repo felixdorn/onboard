@@ -3,6 +3,7 @@
 namespace Felix\Onboard\Facades;
 
 use Felix\Onboard\Step;
+use Felix\Onboard\StepsCache;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -12,6 +13,6 @@ class Onboard extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return Onboard::class;
+        return StepsCache::class;
     }
 }

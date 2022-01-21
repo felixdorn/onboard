@@ -41,7 +41,10 @@
         "laravel": {
             "providers": [
                 "Felix\\Onboard\\Providers\\OnboardServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Onboard": "Felix\\Onboard\\Facades\\Onboard"
+            }
         }
     },
     "scripts": {

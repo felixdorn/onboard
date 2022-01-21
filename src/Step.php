@@ -6,12 +6,13 @@ use Felix\Onboard\Exceptions\StepCanNeverBeCompletedException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Http\RedirectResponse;
 
 class Step implements Arrayable, Jsonable
 {
-    public ?string $href = null;
+    public Authenticatable $user;
 
-    public array $context = [];
+    public ?string $href = null;
 
     /** @var callable */
     private $isCompleted;
@@ -20,9 +21,15 @@ class Step implements Arrayable, Jsonable
     private $isSkipped = null;
 
     public function __construct(
-        public Authenticatable $user,
         public string $name
     ) {
+    }
+
+    public function user(Authenticatable $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 
     public function href(string $href): self
@@ -52,20 +59,6 @@ class Step implements Arrayable, Jsonable
         return $this;
     }
 
-    public function context(callable|array $attributes = []): self
-    {
-        /** @var array<string, mixed> $attributes */
-        $attributes = value($attributes);
-
-        foreach ($attributes as $key => $value) {
-            $attributes[$key] = value($value);
-        }
-
-        $this->context = $attributes;
-
-        return $this;
-    }
-
     public function isIncomplete(): bool
     {
         return !$this->isComplete();
@@ -81,8 +74,7 @@ class Step implements Arrayable, Jsonable
             throw new StepCanNeverBeCompletedException(sprintf('Step [%s] can never be completed', $this->name));
         }
 
-        /* @phpstan-ignore-next-line */
-        return app()->call($this->isCompleted, ['user' => $this->user]);
+        return ($this->isCompleted)($this->user);
     }
 
     public function isSkipped(): bool
@@ -91,13 +83,7 @@ class Step implements Arrayable, Jsonable
             return false;
         }
 
-        /* @phpstan-ignore-next-line */
-        return app()->call($this->isSkipped, ['user' => $this->user]);
-    }
-
-    public function __get(string $name): mixed
-    {
-        return $this->context[$name] ?? null;
+        return ($this->isSkipped)($this->user);
     }
 
     public function toJson($options = 0): false|string
@@ -111,7 +97,7 @@ class Step implements Arrayable, Jsonable
             'name'      => $this->name,
             'href'      => $this->href,
             'completed' => $this->isComplete(),
-            'context'   => $this->context,
+            'skipped'   => $this->isSkipped(),
         ];
     }
 
@@ -120,5 +106,11 @@ class Step implements Arrayable, Jsonable
         $this->isSkipped = $isRequired;
 
         return $this;
+    }
+
+    public function redirect(): RedirectResponse
+    {
+        /* @phpstan-ignore-next-line */
+        return redirect()->to($this->href);
     }
 }

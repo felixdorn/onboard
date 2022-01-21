@@ -3,11 +3,16 @@
 namespace Felix\Onboard\Concerns;
 
 use Felix\Onboard\Onboard;
+use Felix\Onboard\StepsCache;
+use Illuminate\Auth\Authenticatable;
 
+/**
+ * @mixin Authenticatable
+ */
 trait GetsOnboarded
 {
     public function onboarding(): Onboard
     {
-        return app(Onboard::class, ['user' => $this]);
+        return new Onboard($this, app(StepsCache::class)->steps);
     }
 }

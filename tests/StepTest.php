@@ -9,7 +9,8 @@ use Orchestra\Testbench\TestCase;
 uses(TestCase::class);
 
 beforeEach(function () {
-    $this->step = new Step(new User(), 'foo');
+    $this->step = new Step('foo');
+    $this->step->user(new User());
 });
 
 it('throws an error if href is empty', function () {
@@ -57,18 +58,6 @@ it('can resolve a callable route name', function () {
     expect($this->step->href)->toBe('http://localhost/welcome/Taylor');
 });
 
-it('can add context to a step', function () {
-    $this->step->context([
-        'a' => 'b',
-        'c' => fn () => 'd',
-    ]);
-
-    expect($this->step->context)->toBe([
-        'a' => 'b',
-        'c' => 'd',
-    ]);
-});
-
 it('is marked as completed if the step is skipped', function () {
     $isSkipped = false;
     $isCompleted = true;
@@ -95,17 +84,14 @@ it('is marked as completed if the step is skipped', function () {
     expect($this->step->isComplete())->toBe(true);
 });
 
-it('can access context using object notation', function () {
-    $this->step->context([
-        'a' => fn () => 'b',
-    ]);
-
-    expect($this->step->a)->toBe('b');
-});
-
 it('can be converted to json', function () {
     $this->step->completedIf(fn () => false)->href('/something');
     $expected = json_encode($this->step->toArray());
 
     expect($this->step->toJson())->toBe($expected);
+});
+
+it('can redirect to the step', function () {
+    $this->step->href('/hello');
+    expect($this->step->redirect()->getTargetUrl())->toBe('http://localhost/hello');
 });
