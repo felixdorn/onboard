@@ -47,8 +47,7 @@ Onboard::add('Step 1')
     ->route('user.verify', ['foo' => 'bar'])
 ```
 
-You may pass a closure to resolve a route like shown below.
-
+You may pass a closure to resolve a route:
 ```php
 Onboard::add('Step 2')
     ->route(function () {
