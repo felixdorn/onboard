@@ -13,6 +13,10 @@ class ResumeOnboarding
 {
     public function handle(Request $request, Closure $next): mixed
     {
+        if ($request->ajax() || $request->wantsJson()) {
+            return $next($request);
+        }
+        
         /** @var Authenticatable|null $user */
         $user = $request->user();
 
