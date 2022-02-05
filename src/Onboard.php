@@ -11,8 +11,9 @@ class Onboard implements Arrayable, Jsonable
     public function __construct(
         public Authenticatable $user,
         /** @var array<int, Step> */
-        public array $steps = [],
-    ) {
+        public array           $steps = [],
+    )
+    {
     }
 
     public function progress(): float
@@ -30,7 +31,7 @@ class Onboard implements Arrayable, Jsonable
     {
         // TODO: When L9 is released, PHPStan will understand that.
         /* @phpstan-ignore-next-line */
-        return collect($this->steps)->first(fn (Step $step) => $step->user($this->user)->isIncomplete());
+        return collect($this->steps)->first(fn(Step $step) => $step->user($this->user)->isIncomplete());
     }
 
     public function inProgress(): bool
@@ -50,6 +51,15 @@ class Onboard implements Arrayable, Jsonable
 
     public function toArray(): array
     {
-        return array_map(fn (Step $step) => $step->user($this->user)->toArray(), $this->steps);
+        $currentStep = $this->nextUnfinishedStep();
+        $currentIndex = array_search($currentStep, $this->steps, true);
+
+        return [
+            'finished' => $currentIndex,
+            'total' => count($this->steps),
+            'current' => $currentStep->toArray(),
+            'current_index' => $currentIndex,
+            'steps' => array_map(fn(Step $step) => $step->user($this->user)->toArray(), $this->steps)
+        ];
     }
 }
