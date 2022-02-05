@@ -2,6 +2,9 @@
 
 namespace Felix\Onboard;
 
+/**
+ * @internal
+ */
 class StepsCache
 {
     public array $steps = [];

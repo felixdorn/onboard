@@ -43,7 +43,7 @@ it('can resole a route name', function () {
 
     $this->step->route('welcome');
 
-    expect($this->step->href)->toBe('http://localhost/welcome');
+    expect($this->step->url())->toBe('http://localhost/welcome');
 });
 
 it('can resolve a callable route name', function () {
@@ -55,7 +55,7 @@ it('can resolve a callable route name', function () {
         ]);
     });
 
-    expect($this->step->href)->toBe('http://localhost/welcome/Taylor');
+    expect($this->step->url())->toBe('http://localhost/welcome/Taylor');
 });
 
 it('is marked as completed if the step is skipped', function () {

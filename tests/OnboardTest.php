@@ -15,7 +15,7 @@ it('adds a step', function () {
     $this->onboard->steps = $this->memory->steps;
     expect($this->onboard->nextUnfinishedStep())
         ->name->toBe('Complete Profile')
-        ->href->toBe('/something');
+        ->url()->toBe('/something');
 });
 
 it('returns the next unfinished step', function ($name, $steps) {

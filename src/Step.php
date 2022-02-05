@@ -12,13 +12,14 @@ class Step implements Arrayable, Jsonable
 {
     public Authenticatable $user;
 
-    public ?string $href = null;
+    /** @var callable */
+    protected $href;
 
     /** @var callable */
-    private $isCompleted;
+    protected $isCompleted;
 
     /** @var callable|null */
-    private $isSkipped = null;
+    protected $isSkipped = null;
 
     public function __construct(
         public string $name
@@ -32,22 +33,13 @@ class Step implements Arrayable, Jsonable
         return $this;
     }
 
-    public function href(string $href): self
-    {
-        $this->href = $href;
-
-        return $this;
-    }
-
     public function route(callable|string $route, array $attributes = []): self
     {
-        if (is_callable($route)) {
-            $this->href = $route();
-
-            return $this;
+        if (!is_callable($route)) {
+            $route = fn () => route($route, $attributes);
         }
 
-        $this->href = route($route, $attributes);
+        $this->href = $route;
 
         return $this;
     }
@@ -70,7 +62,7 @@ class Step implements Arrayable, Jsonable
             return true;
         }
 
-        if ($this->isCompleted === null || $this->href === null) {
+        if ($this->isCompleted === null || $this->url() === null) {
             throw new StepCanNeverBeCompletedException(sprintf('Step [%s] can never be completed', $this->name));
         }
 
@@ -86,6 +78,22 @@ class Step implements Arrayable, Jsonable
         return ($this->isSkipped)($this->user);
     }
 
+    public function url(): ?string
+    {
+        if ($this->href === null) {
+            return null;
+        }
+
+        return ($this->href)();
+    }
+
+    public function href(string $href): self
+    {
+        $this->href = fn () => $href;
+
+        return $this;
+    }
+
     public function toJson($options = 0): false|string
     {
         return json_encode($this->toArray(), $options);
@@ -95,7 +103,7 @@ class Step implements Arrayable, Jsonable
     {
         return [
             'name'      => $this->name,
-            'href'      => $this->href,
+            'href'      => ($this->href)(),
             'completed' => $this->isComplete(),
             'skipped'   => $this->isSkipped(),
         ];
@@ -111,6 +119,6 @@ class Step implements Arrayable, Jsonable
     public function redirect(): RedirectResponse
     {
         /* @phpstan-ignore-next-line */
-        return redirect()->to($this->href);
+        return redirect()->to($this->url());
     }
 }
