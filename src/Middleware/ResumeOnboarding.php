@@ -3,11 +3,9 @@
 namespace Felix\Onboard\Middleware;
 
 use Closure;
-use Felix\Onboard\Concerns\GetsOnboarded;
 use Felix\Onboard\Step;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
-use RuntimeException;
 
 class ResumeOnboarding
 {
@@ -20,25 +18,21 @@ class ResumeOnboarding
         /** @var Authenticatable|null $user */
         $user = $request->user();
 
-        if (!$user) {
+        if (!$user || !method_exists($user, 'onboarding')) {
             return $next($request);
         }
 
-        if (!method_exists($user, 'onboarding')) {
-            throw new RuntimeException('The ' . $user::class . ' does not implement ' . GetsOnboarded::class);
-        }
+        $currentStep = $user->onboarding()->nextUnfinishedStep();
 
-        $nextStep = $user->onboarding()->nextUnfinishedStep();
-
-        if ($nextStep === null || $this->isStepPath($request, $nextStep)) {
+        if ($currentStep === null || $this->isStep($request, $currentStep)) {
             return $next($request);
         }
 
-        return $nextStep->redirect();
+        return $currentStep->redirect();
     }
 
-    public function isStepPath(Request $request, Step $step): bool
+    public function isStep(Request $request, Step $step): bool
     {
-        return (parse_url($step->href ?? '', PHP_URL_PATH)) === '/' . $request->path();
+        return parse_url($step->url() ?? '', PHP_URL_PATH) === '/' . $request->path();
     }
 }

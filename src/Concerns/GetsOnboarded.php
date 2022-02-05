@@ -13,6 +13,8 @@ trait GetsOnboarded
 {
     public function onboarding(): Onboard
     {
-        return new Onboard($this, app(StepsCache::class)->steps);
+        $cache = app(StepsCache::class);
+
+        return new Onboard($this, $cache->steps);
     }
 }
