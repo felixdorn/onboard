@@ -53,7 +53,7 @@ In your `app/Providers/AppServiceProvider.php`, add your onboarding steps.
 use \App\Models\User;
 use \Felix\Onboard\Facades\Onboard;
 
-Onboard::add('Step 1')
+Onboard::add('verify_email')
     ->completedIf(function (User $user) {
         return $user->hasVerifiedEmail(); // or whatever    
     })
@@ -65,7 +65,7 @@ Onboard::add('Step 1')
 
 You may pass a closure to resolve a route:
 ```php
-Onboard::add('Step 2')
+Onboard::add('create_team')
     ->route(function () {
         return route('teams.create', [
             'users' => User::query->select('id', 'name', 'email', 'avatar')->get()
