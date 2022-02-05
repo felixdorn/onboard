@@ -60,10 +60,12 @@ Onboard::add('verify_email')
     ->skipIf(function () {
         return $user->github_id != null;
     })
-    ->route('user.verify', ['foo' => 'bar'])
+    ->route('verification.notice')
+    ->allowRoutes(['verification.verify'])
 ```
 
 You may pass a closure to resolve a route:
+
 ```php
 Onboard::add('create_team')
     ->route(function () {

@@ -96,8 +96,8 @@ it('can redirect to the step', function () {
     expect($this->step->redirect()->getTargetUrl())->toBe('http://localhost/hello');
 });
 
-it('can whitelist paths', function () {
-    $this->step->whitelist([
+it('can mark a path as allowed', function () {
+    $this->step->allow([
         '/hello/*/something',
     ]);
 
@@ -113,8 +113,8 @@ it('can whitelist paths', function () {
     expect($this->step->usesRoute($request))->toBeFalse();
 });
 
-it('can whitelist routes', function () {
-    $this->step->whitelistRoutes([
+it('can mark a route as allowed', function () {
+    $this->step->allowRoutes([
         'test-route',
     ]);
 

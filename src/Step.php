@@ -23,9 +23,9 @@ class Step implements Arrayable, Jsonable
     /** @var callable|null */
     protected $isSkipped = null;
 
-    protected array $whitelisted = [];
+    protected array $allowed = [];
 
-    protected array $whitelistedRoutes = [];
+    protected array $allowedRoutes = [];
 
     public function __construct(
         public string $name
@@ -39,16 +39,16 @@ class Step implements Arrayable, Jsonable
         return $this;
     }
 
-    public function whitelist(array $path = []): self
+    public function allow(array $path = []): self
     {
-        $this->whitelisted = [...$this->whitelisted, ...$path];
+        $this->allowed = [...$this->allowed, ...$path];
 
         return $this;
     }
 
-    public function whitelistRoutes(array $routes = []): self
+    public function allowRoutes(array $routes = []): self
     {
-        $this->whitelistedRoutes = [...$this->whitelistedRoutes, ...$routes];
+        $this->allowedRoutes = [...$this->allowedRoutes, ...$routes];
 
         return $this;
     }
@@ -150,13 +150,13 @@ class Step implements Arrayable, Jsonable
             return true;
         }
 
-        foreach ($this->whitelisted as $path) {
+        foreach ($this->allowed as $path) {
             if ((new UrlPatternMatcher($path))->match($request->path())) {
                 return true;
             }
         }
 
-        foreach ($this->whitelistedRoutes as $route) {
+        foreach ($this->allowedRoutes as $route) {
             if ($request->routeIs($route)) {
                 return true;
             }
