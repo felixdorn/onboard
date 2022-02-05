@@ -3,10 +3,12 @@
 namespace Felix\Onboard;
 
 use Felix\Onboard\Exceptions\StepCanNeverBeCompletedException;
+use Honda\UrlPatternMatcher\UrlPatternMatcher;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class Step implements Arrayable, Jsonable
 {
@@ -21,6 +23,10 @@ class Step implements Arrayable, Jsonable
     /** @var callable|null */
     protected $isSkipped = null;
 
+    protected array $whitelisted = [];
+
+    protected array $whitelistedRoutes = [];
+
     public function __construct(
         public string $name
     ) {
@@ -29,6 +35,20 @@ class Step implements Arrayable, Jsonable
     public function user(Authenticatable $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function whitelist(array $path = []): self
+    {
+        $this->whitelisted = [...$this->whitelisted, ...$path];
+
+        return $this;
+    }
+
+    public function whitelistRoutes(array $routes = []): self
+    {
+        $this->whitelistedRoutes = [...$this->whitelistedRoutes, ...$routes];
 
         return $this;
     }
@@ -120,5 +140,28 @@ class Step implements Arrayable, Jsonable
     {
         /* @phpstan-ignore-next-line */
         return redirect()->to($this->url());
+    }
+
+    public function usesRoute(Request $request): bool
+    {
+        $path = parse_url($this->url() ?? '', PHP_URL_PATH);
+
+        if ($path === '/' . $request->path()) {
+            return true;
+        }
+
+        foreach ($this->whitelisted as $path) {
+            if ((new UrlPatternMatcher($path))->match($request->path())) {
+                return true;
+            }
+        }
+
+        foreach ($this->whitelistedRoutes as $route) {
+            if ($request->routeIs($route)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

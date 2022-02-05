@@ -95,3 +95,52 @@ it('can redirect to the step', function () {
     $this->step->href('/hello');
     expect($this->step->redirect()->getTargetUrl())->toBe('http://localhost/hello');
 });
+
+it('can whitelist paths', function () {
+    $this->step->whitelist([
+        '/hello/*/something',
+    ]);
+
+    $request = createRequest('GET', '/hello/world/something');
+
+    $request->setRouteResolver(function () {
+        return Route::get('/hello/world/something', fn () => '');
+    });
+
+    expect($this->step->usesRoute($request))->toBeTrue();
+
+    $request = createRequest('GET', '/something-else');
+    expect($this->step->usesRoute($request))->toBeFalse();
+});
+
+it('can whitelist routes', function () {
+    $this->step->whitelistRoutes([
+        'test-route',
+    ]);
+
+    $request = createRequest('GET', '/test');
+
+    $request->setRouteResolver(function () {
+        $route = Route::get('/test-route', fn () => '')->name('test-route');
+
+        return $route;
+    });
+
+    expect($this->step->usesRoute($request))->toBeTrue();
+
+    $request = createRequest('GET', '/other-test');
+    $request->setRouteResolver(function () {
+        return Route::get('/something-else', fn () => '')->name('something-else');
+    });
+    expect($this->step->usesRoute($request))->toBeFalse();
+});
+
+it('marks path as used if it is the step\'s href', function () {
+    $this->step->href('/something');
+
+    $request = createRequest('GET', '/something');
+    expect($this->step->usesRoute($request))->toBeTrue();
+
+    $request = createRequest('GET', '/something-else');
+    expect($this->step->usesRoute($request))->toBeFalse();
+});

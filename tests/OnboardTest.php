@@ -68,28 +68,39 @@ it('marks an onboarding as unfinished', function () {
 
 it('can be converted to an array', function () {
     $this->memory->add('Step 1')->href('step-1')->completedIf(fn () => true);
-    $this->memory->add('Step 2')->href('step-2')->completedIf(fn () => true);
-    $this->memory->add('Step 3')->href('step-3')->completedIf(fn () => true)->skipIf(fn () => true);
+    $this->memory->add('Step 2')->href('step-2')->completedIf(fn () => false);
+    $this->memory->add('Step 3')->href('step-3')->completedIf(fn () => false)->skipIf(fn () => true);
     $this->onboard->steps = $this->memory->steps;
 
     expect($this->onboard->toArray())->toBe([
-        [
-            'name'      => 'Step 1',
-            'href'      => 'step-1',
-            'completed' => true,
-            'skipped'   => false,
-        ],
-        [
+        'finished'      => 2,
+        'total'         => 3,
+        'current'       => [
             'name'      => 'Step 2',
             'href'      => 'step-2',
-            'completed' => true,
+            'completed' => false,
             'skipped'   => false,
         ],
-        [
-            'name'      => 'Step 3',
-            'href'      => 'step-3',
-            'completed' => true,
-            'skipped'   => true,
+        'current_index' => 1,
+        'steps'         => [
+            [
+                'name'      => 'Step 1',
+                'href'      => 'step-1',
+                'completed' => true,
+                'skipped'   => false,
+            ],
+            [
+                'name'      => 'Step 2',
+                'href'      => 'step-2',
+                'completed' => false,
+                'skipped'   => false,
+            ],
+            [
+                'name'      => 'Step 3',
+                'href'      => 'step-3',
+                'completed' => true,
+                'skipped'   => true,
+            ],
         ],
     ]);
 });
@@ -99,17 +110,23 @@ it('can be converted to json', function () {
     $this->onboard->steps = $this->memory->steps;
 
     $expected = json_encode([
-        [
-            'name'      => 'Step 1',
-            'href'      => 'step-1',
-            'completed' => true,
-            'skipped'   => false,
-        ],
-        [
-            'name'      => 'Step 2',
-            'href'      => 'step-2',
-            'completed' => true,
-            'skipped'   => false,
+        'finished'      => 2,
+        'total'         => 2,
+        'current'       => null,
+        'current_index' => 1,
+        'steps'         => [
+            [
+                'name'      => 'Step 1',
+                'href'      => 'step-1',
+                'completed' => true,
+                'skipped'   => false,
+            ],
+            [
+                'name'      => 'Step 2',
+                'href'      => 'step-2',
+                'completed' => true,
+                'skipped'   => false,
+            ],
         ],
     ]);
 

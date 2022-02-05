@@ -3,7 +3,6 @@
 namespace Felix\Onboard\Middleware;
 
 use Closure;
-use Felix\Onboard\Step;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 
@@ -18,21 +17,16 @@ class ResumeOnboarding
         /** @var Authenticatable|null $user */
         $user = $request->user();
 
-        if (!$user || !method_exists($user, 'onboarding')) {
+        if (!$user || !method_exists($user, 'onboarding') || $user->onboarding()->isFinished()) {
             return $next($request);
         }
 
         $currentStep = $user->onboarding()->nextUnfinishedStep();
 
-        if ($currentStep === null || $this->isStep($request, $currentStep)) {
+        if ($currentStep->usesRoute($request)) {
             return $next($request);
         }
 
         return $currentStep->redirect();
-    }
-
-    public function isStep(Request $request, Step $step): bool
-    {
-        return parse_url($step->url() ?? '', PHP_URL_PATH) === '/' . $request->path();
     }
 }
