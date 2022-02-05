@@ -57,7 +57,7 @@ class Onboard implements Arrayable, Jsonable
         return [
             'finished' => $currentIndex,
             'total' => count($this->steps),
-            'current' => $currentStep->toArray(),
+            'current' => $currentStep?->toArray(),
             'current_index' => $currentIndex,
             'steps' => array_map(fn(Step $step) => $step->user($this->user)->toArray(), $this->steps)
         ];
