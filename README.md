@@ -16,7 +16,7 @@ You can install the package via composer:
 composer require felixdorn/onboard
 ```
 
-Then, add the `ResumeOnboarding` middle at the end of the `web` stack in `app/Http/Kernel.php`.
+Add the `ResumeOnboarding` middle at the end of the `web` stack in `app/Http/Kernel.php`.
 
 ```php
     // ...
@@ -29,9 +29,25 @@ Then, add the `ResumeOnboarding` middle at the end of the `web` stack in `app/Ht
     ]
 ```
 
+Then, make sure that your `User` model uses `GetsOnboarded`
+
+```php
+use Felix\Onboard\Concerns\GetsOnboarded;
+
+class User extends Authenticatable {
+    use GetsOnboarded;
+    
+    // ...
+}
+```
+
 You're all set.
 
 ## Usage
+
+In your `app/Providers/AppServiceProvider.php`, add your onboarding steps.
+
+> If you have a lot of steps, you may consider creating an `OnboardServiceProvider` (don't forget to register it in `config/app.php`).
 
 ```php
 use \App\Models\User;
