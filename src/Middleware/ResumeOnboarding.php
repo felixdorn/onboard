@@ -16,7 +16,7 @@ class ResumeOnboarding
         if ($request->ajax() || $request->wantsJson()) {
             return $next($request);
         }
-        
+
         /** @var Authenticatable|null $user */
         $user = $request->user();
 
