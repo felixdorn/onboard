@@ -10,7 +10,7 @@ class Onboard implements Arrayable, Jsonable
 {
     public function __construct(
         public Authenticatable $user,
-        /** @var Step[] */
+        /** @var array<int, Step> */
         public array $steps = [],
     ) {
     }
