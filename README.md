@@ -8,7 +8,7 @@
 
 ## Installation
 
-> Requires [PHP 8.1+](https://php.net/releases)
+> Requires [PHP 8.1+](https://php.net/releases) and Laravel 8.x or 9.x
 
 You can install the package via composer:
 
