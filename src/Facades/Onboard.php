@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static Step add(string $name)
- * @method static static allow(string ...$paths)
- * @method static static allowRoutes(string ...$routes)
+ * @method static static allow(array $paths = [])
+ * @method static static allowRoutes(array $routes = [])
  */
 class Onboard extends Facade
 {
