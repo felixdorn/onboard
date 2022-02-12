@@ -3,6 +3,10 @@
 use Felix\Onboard\Onboard;
 use Felix\Onboard\StepsCache;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Facades\Route;
+use Orchestra\Testbench\TestCase;
+
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->memory = new StepsCache();
@@ -73,9 +77,9 @@ it('can be converted to an array', function () {
     $this->onboard->steps = $this->memory->steps;
 
     expect($this->onboard->toArray())->toBe([
-        'finished'      => 2,
-        'total'         => 3,
-        'current'       => [
+        'finished' => 2,
+        'total'    => 3,
+        'current'  => [
             'name'      => 'Step 2',
             'href'      => 'step-2',
             'completed' => false,
@@ -147,3 +151,32 @@ it('can return the current progress of an onboarding', function ($n, $percent) {
     [2, 20.0],
     [10, 100.0],
 ]);
+
+it('can allow a route globally', function () {
+    $this->memory->allowRoutes(['logout']);
+    $step = $this->memory->add('Step 1');
+
+    $this->onboard->steps = $this->memory->steps;
+
+    $request = createRequest('GET', '/logout');
+
+    $request->setRouteResolver(function () {
+        return Route::get('/logout', fn () => '')->name('logout');
+    });
+
+    expect($step->usesRoute($request))->toBeTrue();
+});
+it('can allow a path globally', function () {
+    $this->memory->allow(['/settings/billing']);
+    $step = $this->memory->add('Step 1');
+
+    $this->onboard->steps = $this->memory->steps;
+
+    $request = createRequest('GET', '/settings/billing');
+
+    $request->setRouteResolver(function () {
+        return Route::get('/settings/billing', fn () => '');
+    });
+
+    expect($step->usesRoute($request))->toBeTrue();
+});
