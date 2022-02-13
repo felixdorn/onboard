@@ -35,7 +35,7 @@ Add it to your `app/Http/Kernel.php`:
     ]
 ```
 
-Then, make sure that your `User` model uses `HasOnboarding`
+Then, make sure that your `User` model uses `HasOnboarding`.
 
 ```php
 use Felix\Onboard\Concerns\HasOnboarding;
@@ -47,11 +47,11 @@ class User extends Authenticatable {
 }
 ```
 
-You're all set.s
+You're all set.
 
 ## Usage
 
-In your `app/Providers/AppServiceProvider.php`, add your onboarding steps.
+Add your onboarding steps in `app/Providers/AppServiceProvider.php`
 
 > If you have a lot of steps, you may consider creating an `OnboardServiceProvider` (don't forget to register it in `config/app.php`).
 
@@ -67,8 +67,10 @@ Onboard::add('verify_email')
         return $user->github_id != null;
     })
     ->route('verification.notice')
-    ->allowRoutes(['verification.verify'])
+    ->allowRoutes(['verification.verify']);
 ```
+
+> You may call completedIf and skipIf many times, the step will be marked as completed or skipped if all the closures return true.
 
 You may pass a closure to resolve a route:
 
@@ -87,10 +89,11 @@ Regardless of the state of the onboarding process, you may want the user to have
 logout page.
 
 ```php
-Onboard::allow('/logout', '/settings/billing');
-// or
-Onboard::allowRoutes('logout', 'settings.billing')
+Onboard::allow(['/api/*']);
+
+Onboard::allowRoutes(['logout', 'settings.billing']);
 ```
+> `Step::allow` and `Onboard::allow` makes use of `honda/url-pattern-matcher`, check it out for more details about how to use pattern matching with Onboard.
 
 ## Testing
 
