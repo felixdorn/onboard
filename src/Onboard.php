@@ -30,7 +30,7 @@ class Onboard implements Arrayable, Jsonable
     {
         // TODO: When L9 is released, PHPStan will understand that.
         /* @phpstan-ignore-next-line */
-        return collect($this->steps)->first(fn (Step $step) => $step->user($this->user)->isIncomplete());
+        return collect($this->steps)->first(fn (Step $step) => $step->forUser($this->user)->isIncomplete());
     }
 
     public function inProgress(): bool
@@ -65,7 +65,7 @@ class Onboard implements Arrayable, Jsonable
             'total'         => count($this->steps),
             'current'       => $currentStep?->toArray(),
             'current_index' => $currentIndex,
-            'steps'         => array_map(fn (Step $step) => $step->user($this->user)->toArray(), $this->steps),
+            'steps'         => array_map(fn (Step $step) => $step->forUser($this->user)->toArray(), $this->steps),
         ];
     }
 }

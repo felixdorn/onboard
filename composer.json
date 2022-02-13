@@ -41,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Felix\\Onboard\\Providers\\OnboardServiceProvider"
+                "Felix\\Onboard\\ServiceProvider"
             ],
             "aliases": {
                 "Onboard": "Felix\\Onboard\\Facades\\Onboard"

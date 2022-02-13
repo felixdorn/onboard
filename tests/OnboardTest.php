@@ -19,7 +19,7 @@ it('adds a step', function () {
     $this->onboard->steps = $this->memory->steps;
     expect($this->onboard->nextUnfinishedStep())
         ->name->toBe('Complete Profile')
-        ->url()->toBe('/something');
+        ->url()->toBe('http://localhost/something');
 });
 
 it('returns the next unfinished step', function ($name, $steps) {
@@ -81,7 +81,7 @@ it('can be converted to an array', function () {
         'total'    => 3,
         'current'  => [
             'name'      => 'Step 2',
-            'href'      => 'step-2',
+            'href'      => 'http://localhost/step-2',
             'completed' => false,
             'skipped'   => false,
         ],
@@ -89,19 +89,19 @@ it('can be converted to an array', function () {
         'steps'         => [
             [
                 'name'      => 'Step 1',
-                'href'      => 'step-1',
+                'href'      => 'http://localhost/step-1',
                 'completed' => true,
                 'skipped'   => false,
             ],
             [
                 'name'      => 'Step 2',
-                'href'      => 'step-2',
+                'href'      => 'http://localhost/step-2',
                 'completed' => false,
                 'skipped'   => false,
             ],
             [
                 'name'      => 'Step 3',
-                'href'      => 'step-3',
+                'href'      => 'http://localhost/step-3',
                 'completed' => true,
                 'skipped'   => true,
             ],
@@ -121,13 +121,13 @@ it('can be converted to json', function () {
         'steps'         => [
             [
                 'name'      => 'Step 1',
-                'href'      => 'step-1',
+                'href'      => 'http://localhost/step-1',
                 'completed' => true,
                 'skipped'   => false,
             ],
             [
                 'name'      => 'Step 2',
-                'href'      => 'step-2',
+                'href'      => 'http://localhost/step-2',
                 'completed' => true,
                 'skipped'   => false,
             ],

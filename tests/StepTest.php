@@ -10,7 +10,7 @@ uses(TestCase::class);
 
 beforeEach(function () {
     $this->step = new Step('foo');
-    $this->step->user(new User());
+    $this->step->forUser(new User());
 });
 
 it('throws an error if href is empty', function () {

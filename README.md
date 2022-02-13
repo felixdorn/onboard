@@ -16,7 +16,13 @@ You can install the package via composer:
 composer require felixdorn/onboard
 ```
 
-Add the `ResumeOnboarding` middle at the end of the `web` stack in `app/Http/Kernel.php`.
+Publish the `ResumeOnboarding` middleware to your `app/Http/Middleware` directory:
+
+```bash
+php artisan onboard:middleware
+```
+
+Add it to your `app/Http/Kernel.php`:
 
 ```php
     // ...
@@ -24,24 +30,24 @@ Add the `ResumeOnboarding` middle at the end of the `web` stack in `app/Http/Ker
     protected $middlewareGroups = [
         'web' => [
             // ...
-            \Felix\Onboard\Middleware\ResumeOnboarding::class
+            \App\Http\Middleware\ResumeOnboarding::class
         ]   
     ]
 ```
 
-Then, make sure that your `User` model uses `GetsOnboarded`
+Then, make sure that your `User` model uses `HasOnboarding`
 
 ```php
-use Felix\Onboard\Concerns\GetsOnboarded;
+use Felix\Onboard\Concerns\HasOnboarding;
 
 class User extends Authenticatable {
-    use GetsOnboarded;
+    use HasOnboarding;
     
     // ...
 }
 ```
 
-You're all set.
+You're all set.s
 
 ## Usage
 
@@ -84,12 +90,6 @@ logout page.
 Onboard::allow('/logout', '/settings/billing');
 // or
 Onboard::allowRoutes('logout', 'settings.billing')
-```
-
-## Disabling onboarding
-
-```php
-ResumeOnboarding::disable();
 ```
 
 ## Testing

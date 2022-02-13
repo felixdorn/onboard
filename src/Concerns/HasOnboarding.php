@@ -9,7 +9,7 @@ use Illuminate\Auth\Authenticatable;
 /**
  * @mixin Authenticatable
  */
-trait GetsOnboarded
+trait HasOnboarding
 {
     public function onboarding(): Onboard
     {

@@ -3,29 +3,27 @@
 namespace Felix\Onboard\Middleware;
 
 use Closure;
-use Felix\Onboard\Facades\Onboard;
+use Felix\Onboard\Exceptions\UserDoesNotUseOnboarding;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ResumeOnboarding
 {
-    protected static $disabled = false;
-
-    public static function disable(): void
-    {
-        static::$disabled = true;
-    }
-
     public function handle(Request $request, Closure $next): mixed
     {
-        if (static::$disabled || $request->ajax() || $request->wantsJson()) {
+        if ($this->disable() || $this->skip($request)) {
             return $next($request);
         }
 
-        /** @var Authenticatable|null $user */
+        /** @var Authenticatable $user */
         $user = $request->user();
 
-        if (!$user || !method_exists($user, 'onboarding') || $user->onboarding()->isFinished()) {
+        if (!method_exists($user, 'onboarding')) {
+            throw new UserDoesNotUseOnboarding($user);
+        }
+
+        if ($user->onboarding()->isFinished()) {
             return $next($request);
         }
 
@@ -36,5 +34,15 @@ class ResumeOnboarding
         }
 
         return $currentStep->redirect();
+    }
+
+    public function disable(): bool
+    {
+        return false;
+    }
+
+    public function skip(Request $request): bool
+    {
+        return $request->ajax() || $request->wantsJson() || !Auth::check();
     }
 }

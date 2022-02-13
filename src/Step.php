@@ -30,7 +30,7 @@ class Step implements Arrayable, Jsonable
     ) {
     }
 
-    public function user(Authenticatable $user): static
+    public function forUser(Authenticatable $user): static
     {
         $this->user = $user;
 
@@ -119,7 +119,7 @@ class Step implements Arrayable, Jsonable
 
     public function href(string $href): self
     {
-        $this->href = fn () => $href;
+        $this->href = fn () => url($href);
 
         return $this;
     }
@@ -156,7 +156,7 @@ class Step implements Arrayable, Jsonable
     {
         $path = parse_url($this->url() ?? '', PHP_URL_PATH);
 
-        if (ltrim($path, '/') === ltrim($request->path(), '/')) {
+        if ($path === '/' . $request->path()) {
             return true;
         }
 
