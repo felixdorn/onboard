@@ -21,6 +21,17 @@ Publish the `ResumeOnboarding` middleware to your `app/Http/Middleware` director
 ```bash
 php artisan onboard:middleware
 ```
+> **If you're using Inertia**, you need to return false when `$request->inertia()` is true in the skip method of the middleware.
+```php
+    public function skip(Request $request): bool
+    {
+        if ($request->inertia()) {
+            return false;
+        }
+        
+        return parent::skip($request);
+    }
+```
 
 Add it to your `app/Http/Kernel.php`:
 
@@ -72,15 +83,11 @@ Onboard::add('verify_email')
 
 > You may call completedIf and skipIf many times, the step will be marked as completed or skipped if all the closures return true.
 
-You may pass a closure to resolve a route:
+You may pass a closure to resolve a route lazily:
 
 ```php
 Onboard::add('create_team')
-    ->route(function () {
-        return route('teams.create', [
-            'users' => User::query->select('id', 'name', 'email', 'avatar')->get()
-        ])  
-    })
+    ->route(fn () => route('teams.create'));
 ```
 
 ## Globally allowed routes
@@ -93,7 +100,7 @@ Onboard::allow(['/api/*']);
 
 Onboard::allowRoutes(['logout', 'settings.billing']);
 ```
-> `Step::allow` and `Onboard::allow` makes use of `honda/url-pattern-matcher`, check it out for more details about how to use pattern matching with Onboard.
+`Step::allow` and `Onboard::allow` make use of [`honda/url-pattern-matcher`](https://github.com/laravel-honda/url-pattern-matcher), check it out for more details about how to use pattern matching with Onboard.
 
 ## Testing
 
