@@ -12,7 +12,7 @@ class ResumeOnboarding
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        if ($this->disable() || $this->skip($request)) {
+        if (!Auth::check() || $this->disable() || $this->skip($request)) {
             return $next($request);
         }
 
@@ -43,6 +43,6 @@ class ResumeOnboarding
 
     public function skip(Request $request): bool
     {
-        return $request->ajax() || $request->wantsJson() || !Auth::check();
+        return $request->ajax() || $request->wantsJson();
     }
 }
