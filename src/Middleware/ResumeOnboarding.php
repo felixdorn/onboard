@@ -3,14 +3,22 @@
 namespace Felix\Onboard\Middleware;
 
 use Closure;
+use Felix\Onboard\Facades\Onboard;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 
 class ResumeOnboarding
 {
+    protected static $disabled = false;
+
+    public static function disable(): void
+    {
+        static::$disabled = true;
+    }
+
     public function handle(Request $request, Closure $next): mixed
     {
-        if ($request->ajax() || $request->wantsJson()) {
+        if (static::$disabled || $request->ajax() || $request->wantsJson()) {
             return $next($request);
         }
 

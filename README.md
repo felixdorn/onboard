@@ -77,12 +77,19 @@ Onboard::add('create_team')
 
 ## Globally allowed routes
 
-Regardless of the state of the onboarding process, you may want the user to have access to certain urls, such as a logout page.
+Regardless of the state of the onboarding process, you may want the user to have access to certain urls, such as a
+logout page.
 
 ```php
 Onboard::allow('/logout', '/settings/billing');
 // or
 Onboard::allowRoutes('logout', 'settings.billing')
+```
+
+## Disabling onboarding
+
+```php
+ResumeOnboarding::disable();
 ```
 
 ## Testing

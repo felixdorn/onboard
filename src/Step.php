@@ -17,11 +17,9 @@ class Step implements Arrayable, Jsonable
     /** @var callable */
     protected $href;
 
-    /** @var callable */
-    protected $isCompleted;
+    protected array $isCompleted = [];
 
-    /** @var callable|null */
-    protected $isSkipped = null;
+    protected array $isSkipped = [];
 
     protected array $allowed = [];
 
@@ -64,9 +62,9 @@ class Step implements Arrayable, Jsonable
         return $this;
     }
 
-    public function completedIf(callable $isCompleted): self
+    public function completedIf(callable $condition): self
     {
-        $this->isCompleted = $isCompleted;
+        $this->isCompleted[] = $condition;
 
         return $this;
     }
@@ -82,20 +80,32 @@ class Step implements Arrayable, Jsonable
             return true;
         }
 
-        if ($this->isCompleted === null || $this->url() === null) {
+        if ($this->isCompleted === [] || $this->url() === null) {
             throw new StepCanNeverBeCompletedException(sprintf('Step [%s] can never be completed', $this->name));
         }
 
-        return ($this->isCompleted)($this->user);
+        foreach ($this->isCompleted as $isCompleted) {
+            if (!$isCompleted($this->user)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function isSkipped(): bool
     {
-        if ($this->isSkipped === null) {
+        if ($this->isSkipped === []) {
             return false;
         }
 
-        return ($this->isSkipped)($this->user);
+        foreach ($this->isSkipped as $isSkipped) {
+            if ($isSkipped($this->user)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function url(): ?string
@@ -129,9 +139,9 @@ class Step implements Arrayable, Jsonable
         ];
     }
 
-    public function skipIf(callable $isRequired): self
+    public function skipIf(callable $condition): self
     {
-        $this->isSkipped = $isRequired;
+        $this->isSkipped[] = $condition;
 
         return $this;
     }
@@ -146,7 +156,7 @@ class Step implements Arrayable, Jsonable
     {
         $path = parse_url($this->url() ?? '', PHP_URL_PATH);
 
-        if ($path === '/' . $request->path()) {
+        if (ltrim($path, '/') === ltrim($request->path(), '/')) {
             return true;
         }
 
