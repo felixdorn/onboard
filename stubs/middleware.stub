@@ -11,4 +11,9 @@ class {{ class }} extends Middleware
     {
         return parent::skip($request);
     }
+    
+    public function disable(): bool
+    {
+        return false;
+    }
 }
