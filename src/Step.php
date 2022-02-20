@@ -79,11 +79,7 @@ class Step implements Arrayable, Jsonable
         if ($this->isSkipped()) {
             return true;
         }
-
-        if ($this->isCompleted === [] || $this->url() === null) {
-            throw new StepCanNeverBeCompletedException(sprintf('Step [%s] can never be completed', $this->name));
-        }
-
+        
         foreach ($this->isCompleted as $isCompleted) {
             if (!$isCompleted($this->user)) {
                 return false;
