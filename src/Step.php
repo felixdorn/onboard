@@ -114,7 +114,7 @@ class Step implements Arrayable, Jsonable
             return null;
         }
 
-        return ($this->href)();
+        return ($this->href)($this->user);
     }
 
     public function href(string $href): self
@@ -133,7 +133,7 @@ class Step implements Arrayable, Jsonable
     {
         return [
             'name'      => $this->name,
-            'href'      => ($this->href)(),
+            'href'      => $this->url(),
             'completed' => $this->isComplete(),
             'skipped'   => $this->isSkipped(),
         ];
