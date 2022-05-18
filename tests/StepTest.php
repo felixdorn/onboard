@@ -43,7 +43,7 @@ it('can resolve a callable route name', function () {
 });
 
 it('is marked as completed if the step is skipped', function () {
-    $isSkipped = false;
+    $isSkipped   = false;
     $isCompleted = true;
     $this->step
         ->skipIf(function () use (&$isSkipped) {

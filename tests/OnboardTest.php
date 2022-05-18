@@ -11,7 +11,7 @@ use Orchestra\Testbench\TestCase;
 uses(TestCase::class);
 
 beforeEach(function () {
-    $this->memory = new StepsCache();
+    $this->memory  = new StepsCache();
     $this->onboard = new Onboard(new User());
 });
 
