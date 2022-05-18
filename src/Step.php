@@ -2,7 +2,7 @@
 
 namespace Felix\Onboard;
 
-use Felix\Onboard\Exceptions\StepCanNeverBeCompletedException;
+use Felix\Onboard\Exceptions\CompletedCallableReturnsNonBoolean;
 use Honda\UrlPatternMatcher\UrlPatternMatcher;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Arrayable;
@@ -64,7 +64,28 @@ class Step implements Arrayable, Jsonable
 
     public function completedIf(callable $condition): self
     {
-        $this->isCompleted[] = $condition;
+        $memoize = function ($func) {
+            return function (...$args) use ($func) {
+                static $cache = [];
+
+                $key = md5(serialize($args));
+                if (array_key_exists($key, $cache)) {
+                    return $cache[$key];
+                }
+
+                $completed = $func(...$args);
+
+                if (!is_bool($completed)) {
+                    throw new CompletedCallableReturnsNonBoolean('Condition must return a boolean');
+                }
+
+                $cache[$key] = $completed;
+
+                return $completed;
+            };
+        };
+
+        $this->isCompleted[] = $memoize($condition);
 
         return $this;
     }
@@ -79,7 +100,7 @@ class Step implements Arrayable, Jsonable
         if ($this->isSkipped()) {
             return true;
         }
-        
+
         foreach ($this->isCompleted as $isCompleted) {
             if (!$isCompleted($this->user)) {
                 return false;
@@ -104,15 +125,6 @@ class Step implements Arrayable, Jsonable
         return false;
     }
 
-    public function url(): ?string
-    {
-        if ($this->href === null) {
-            return null;
-        }
-
-        return ($this->href)($this->user);
-    }
-
     public function href(string $href): self
     {
         $this->href = fn () => url($href);
@@ -133,6 +145,15 @@ class Step implements Arrayable, Jsonable
             'completed' => $this->isComplete(),
             'skipped'   => $this->isSkipped(),
         ];
+    }
+
+    public function url(): ?string
+    {
+        if ($this->href === null) {
+            return null;
+        }
+
+        return ($this->href)($this->user);
     }
 
     public function skipIf(callable $condition): self

@@ -21,7 +21,10 @@ Publish the `ResumeOnboarding` middleware to your `app/Http/Middleware` director
 ```bash
 php artisan onboard:middleware
 ```
-> **If you're using Inertia**, you need to return false when `$request->inertia()` is true in the skip method of the middleware.
+
+> **If you're using Inertia**, you need to return false when `$request->inertia()` is true in the skip method of the
+> middleware.
+
 ```php
     public function skip(Request $request): bool
     {
@@ -64,7 +67,8 @@ You're all set.
 
 Add your onboarding steps in `app/Providers/AppServiceProvider.php`
 
-> If you have a lot of steps, you may consider creating an `OnboardServiceProvider` (don't forget to register it in `config/app.php`).
+> If you have a lot of steps, you may consider creating an `OnboardServiceProvider` (don't forget to register it
+> in `config/app.php`).
 
 ```php
 use \App\Models\User;
@@ -79,9 +83,21 @@ Onboard::add('verify_email')
     })
     ->route('verification.notice')
     ->allowRoutes(['verification.verify']);
+
+class HomeController extends Controller {
+    public function index(\Illuminate\Http\Request $request) {
+        return [
+            'steps' => $request->user()->onboarding()->toArray()
+        ];
+    }
+}
 ```
 
-> You may call completedIf and skipIf many times, the step will be marked as completed or skipped if all the closures return true.
+**WARNING**: Be careful, closure are memoized (their result are cached) for the duration of a request. This should never
+be an issue in traditional apps, if you encounter problems, please let us know.
+
+> You may call completedIf and skipIf many times, the step will be marked as completed or skipped if all the closures
+> return true.
 
 You may pass a closure to resolve a route lazily:
 
@@ -100,7 +116,10 @@ Onboard::allow(['/api/*']);
 
 Onboard::allowRoutes(['logout', 'settings.billing']);
 ```
-`Step::allow` and `Onboard::allow` make use of [`honda/url-pattern-matcher`](https://github.com/laravel-honda/url-pattern-matcher), check it out for more details about how to use pattern matching with Onboard.
+
+`Step::allow` and `Onboard::allow` make use
+of [`honda/url-pattern-matcher`](https://github.com/laravel-honda/url-pattern-matcher), check it out for more details
+about how to use pattern matching with Onboard.
 
 ## Testing
 

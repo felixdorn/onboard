@@ -1,6 +1,5 @@
 <?php
 
-use Felix\Onboard\Exceptions\StepCanNeverBeCompletedException;
 use Felix\Onboard\Step;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Route;
@@ -13,16 +12,6 @@ beforeEach(function () {
     $this->step->forUser(new User());
 });
 
-it('throws an error if href is empty', function () {
-    $this->step->isComplete();
-})->throws(StepCanNeverBeCompletedException::class);
-
-it('throws an error if isCompleted is empty', function () {
-    $this->step->href('/bar');
-
-    $this->step->isComplete();
-})->throws(StepCanNeverBeCompletedException::class);
-
 it('returns true if the step is complete', function () {
     $isCompleted = false;
     $this->step->href('bar')->completedIf(function () use (&$isCompleted) {
@@ -31,11 +20,6 @@ it('returns true if the step is complete', function () {
 
     expect($this->step->isComplete())->toBe(false);
     expect($this->step->isIncomplete())->toBe(true);
-
-    $isCompleted = true;
-
-    expect($this->step->isComplete())->toBe(true);
-    expect($this->step->isIncomplete())->toBe(false);
 });
 
 it('can resole a route name', function () {

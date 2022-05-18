@@ -1,6 +1,8 @@
 <?php
 
+use Felix\Onboard\Exceptions\CompletedCallableReturnsNonBoolean;
 use Felix\Onboard\Onboard;
+use Felix\Onboard\Step;
 use Felix\Onboard\StepsCache;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Route;
@@ -63,11 +65,6 @@ it('marks an onboarding as unfinished', function () {
 
     expect($this->onboard->isFinished())->toBe(false);
     expect($this->onboard->inProgress())->toBe(true);
-
-    $isCompleted = true;
-
-    expect($this->onboard->isFinished())->toBe(true);
-    expect($this->onboard->inProgress())->toBe(false);
 });
 
 it('can be converted to an array', function () {
@@ -180,3 +177,28 @@ it('can allow a path globally', function () {
 
     expect($step->usesRoute($request))->toBeTrue();
 });
+
+it('memoize the completed callable', function () {
+    $counter = 0;
+
+    $step = (new Step('Step 1'))
+        ->forUser(new User())
+        ->completedIf(function () use (&$counter) {
+            $counter++;
+
+            return false;
+        });
+
+    $step->isComplete();
+    $step->isComplete();
+
+    expect($counter)->toBe(1);
+});
+
+it('throws an error if completed if does not return a boolean', function () {
+    $step = (new Step('Step 1'))
+        ->forUser(new User())
+        ->completedIf(fn () => 'd');
+
+    $step->isComplete();
+})->throws(CompletedCallableReturnsNonBoolean::class);
